@@ -2,4 +2,4 @@ checkpoints/
 data/
 onnx_model/
 __pycache__/
-notebook/
+notebook/tomato_only.zip
