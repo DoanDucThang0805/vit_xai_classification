@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 from .trainer import Trainer
-from dataset.dataset import train_dataset, val_dataset
+from dataset.plantdoc_dataset import train_dataset, val_dataset
 from model.resnet50 import model
 
 BATCH_SIZE = 64

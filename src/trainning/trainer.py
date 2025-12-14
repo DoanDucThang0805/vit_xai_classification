@@ -14,6 +14,7 @@ Features:
 """
 
 import os
+import time
 from datetime import datetime
 import logging
 import tqdm
@@ -166,7 +167,7 @@ class Trainer:
         best_val_acc = -float("inf")
         best_epoch = -1
         no_improve_count = 0
-
+        start_trainning = time.time()
         for epoch in tqdm.tqdm(range(self.num_epochs), desc="Epochs"):
             # ---- Train ----
             self.model.train()
@@ -242,7 +243,9 @@ class Trainer:
         last_path = os.path.join(self.run_dir, "last_checkpoint.pth")
         self._save_checkpoint(last_path, epoch + 1)
 
-        logger.info(f"Training finished. Best val acc: {best_val_acc:.4f} at epoch {best_epoch}")
+        end_trainning = time.time()
+        total_time = end_trainning - start_trainning
+        logger.info(f"Training finished. Best val acc: {best_val_acc:.4f} at epoch {best_epoch}. Total training time: {total_time:.2f} seconds")
 
         # ---- Plot loss/acc ----
         plt.figure(figsize=(12, 8))
