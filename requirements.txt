@@ -1,0 +1,28 @@
+# Core Deep Learning Frameworks
+torch
+torchvision
+timm
+
+# Data Processing
+numpy
+pandas
+opencv-python
+Pillow
+
+# Model Training & Optimization
+tqdm
+
+# Explainable AI (XAI)
+captum
+scikit-learn
+
+# Model Export & Inference
+onnx
+onnxruntime
+
+# Visualization
+matplotlib
+
+# Utilities
+PyYAML
+pydantic

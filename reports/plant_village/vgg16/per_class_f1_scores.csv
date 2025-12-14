@@ -1,0 +1,11 @@
+Class,F1-Score
+Tomato_Bacterial_spot,0.9976580796252927
+Tomato_Early_blight,0.9651741293532339
+Tomato_Late_blight,0.9842105263157894
+Tomato_Leaf_Mold,1.0
+Tomato_Septoria_leaf_spot,1.0
+Tomato_Spider_mites_Two_spotted_spider_mite,1.0
+Tomato__Target_Spot,1.0
+Tomato__Tomato_YellowLeaf__Curl_Virus,1.0
+Tomato__Tomato_mosaic_virus,1.0
+Tomato_healthy,1.0
