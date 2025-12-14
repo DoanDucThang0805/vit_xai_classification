@@ -3,3 +3,4 @@ data/
 onnx_model/
 __pycache__/
 notebook/tomato_only.zip
+notebook/
