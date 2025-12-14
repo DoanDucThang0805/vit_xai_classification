@@ -1,3 +1,0 @@
-Parameters: 6.96 M
-FLOPs: 2.90 G
-Latency: 16.25 ms
