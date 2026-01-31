@@ -169,11 +169,12 @@ class GroupConvBlock(nn.Module):
         Returns:
             torch.Tensor: Output tensor of shape (batch_size, out_channels, height', width')
         """
-        x = self.depthwise_conv2d(x)
-        x = self.pointwise_conv2d(x)
-        x = self.batch_norm(x)
-        x = self.activation(x)
-        return x
+        x1 = self.depthwise_conv2d(x)
+        x1 = self.pointwise_conv2d(x1)
+        x1 = self.batch_norm(x1)
+        x1 = self.activation(x1)
+        x1 = x1 + x  # Residual connection
+        return x1
 
 class ChannelAttention(nn.Module):
     """
@@ -469,7 +470,7 @@ class EncoderBlock(nn.Module):
         return x
 
 class ClassificationHead(nn.Module):
-    def __init__(self, input_dim: int, hidden_dim: int, num_classes: int, dropout: float = 0.3):
+    def __init__(self, input_dim: int, num_classes: int, dropout: float = 0.3):
         """
         Initialize classification head for final prediction.
         
@@ -480,10 +481,9 @@ class ClassificationHead(nn.Module):
             dropout (float, optional): Dropout rate. Defaults to 0.3.
         """
         super(ClassificationHead, self).__init__()
-        # self.fc1 = nn.Linear(input_dim, hidden_dim)
         self.dropout = nn.Dropout(dropout)
-        # self.fc2 = nn.Linear(hidden_dim, num_classes)
-        self.output = nn.Linear(input_dim, num_classes)
+        self.hidden = nn.Linear(input_dim, 512)
+        self.output = nn.Linear(512, num_classes)
 
     def forward(self, x):
         """
@@ -495,6 +495,8 @@ class ClassificationHead(nn.Module):
             torch.Tensor: Logits of shape (batch_size, num_classes)
         """
         z = x.mean(dim=1)  # Global average pooling over sequence length [B, d]
+        z = self.hidden(z)
+        z = F.gelu(z)
         z = self.dropout(z)
         z = self.output(z)
         return z
@@ -642,7 +644,6 @@ class MobilePlantVit(nn.Module):
 
         self.classifier = ClassificationHead(
             input_dim=embed_dim,
-            hidden_dim=ffn_dim,
             num_classes=num_classes,
             dropout=classifier_dropout
         )
@@ -668,7 +669,7 @@ class MobilePlantVit(nn.Module):
 model = MobilePlantVit(
     image_size=(224, 224),
     input_channels=3,
-    num_classes=8,
+    num_classes=10,
     embed_dim=256,
     ffn_dim=512,
     patch_size=7,

@@ -5,7 +5,7 @@ from torchinfo import summary
 num_classes = 8
 model = timm.create_model(
     "resnet50",
-    pretrained=False,
+    pretrained=True,
     num_classes=num_classes
 )
 

@@ -1,13 +1,12 @@
-import timm
+from torchvision.models import shufflenet_v2_x1_0
 from torchinfo import summary
 
 num_classes = 8
-model = timm.create_model(
-    "shufflenet_v2_x1_0",  # phổ biến nhất
-    pretrained=False,
+
+model = shufflenet_v2_x1_0(
+    weights=None,          # hoặc "IMAGENET1K_V1" nếu muốn pretrained
     num_classes=num_classes
 )
-
 
 summary(
     model,

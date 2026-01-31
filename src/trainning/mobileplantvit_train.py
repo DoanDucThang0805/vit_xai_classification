@@ -5,12 +5,12 @@ import torch.nn as nn
 import torch.optim as optim
 
 from .trainer import Trainer
-from dataset.plantdoc_dataset import train_dataset, validation_dataset
+from dataset.dataset import train_dataset, validation_dataset
 from model.mobileplantvit import model
 
 BATCH_SIZE = 64
 train_ds = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-val_ds = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False)
+val_ds = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=True)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 output_dir = Path.cwd().parents[0]
@@ -27,7 +27,7 @@ trainer = Trainer(
     model=model,
     criterion=criterion,
     optimizer=optimizer,
-    checkpoints_dir=str(output_dir / "checkpoints" / "plantdoc" / "mobileplantvit")
+    checkpoints_dir=str(output_dir / "checkpoints" / "planvillage" / "mobileplantvit")
 )
 
 if __name__ == "__main__":

@@ -1,11 +1,11 @@
-import timm
+import torch
+from torchvision.models import squeezenet1_1
 from torchinfo import summary
 
-
 num_classes = 8
-model = timm.create_model(
-    "squeezenet1_1",   # khuyên dùng 1.1 (nhẹ + nhanh hơn 1.0)
-    pretrained=False,
+
+model = squeezenet1_1(
+    weights=None,          # hoặc "IMAGENET1K_V1" nếu muốn pretrained
     num_classes=num_classes
 )
 

@@ -24,11 +24,11 @@ import seaborn as sns
 import pandas as pd
 
 from dataset.plantdoc_dataset import test_dataset
-from model.mobileplantvit import model
+from model.mobileplantvitv2 import model
 
 
 model_name = 'mobileplantvit'
-run_time = 'run_20251212-165332'
+run_time = 'run_20251230-151728'
 data = 'plantdoc'
 num_class = 8
 test_ds = DataLoader(test_dataset, batch_size=32, shuffle=True)
@@ -95,7 +95,7 @@ plt.xticks(rotation=45, ha="right")
 plt.yticks(rotation=0)
 plt.tight_layout()
 plt.savefig(f"/media/icnlab/Data/Thang/plan_dieases/vit_xai/reports/{data}/{model_name}/confusion_matrix.png")
-# plt.show()
+plt.show()
 
 
 # Tạo classification report dạng dict
@@ -105,5 +105,5 @@ df = pd.DataFrame(report_dict).transpose()
 plt.figure(figsize=(10, 6))
 sns.heatmap(df.iloc[:-1, :-1], annot=True, cmap="Blues", fmt=".2f")
 plt.title("Classification Report (Precision / Recall / F1-score)")
-plt.savefig(f"/media/icnlab/Data/Thang/plan_dieases/vit_xai/reports/plantdoc/{model_name}/classification_report_heatmap.png", dpi=300, bbox_inches="tight")
-# plt.show()
+plt.savefig(f"/media/icnlab/Data/Thang/plan_dieases/vit_xai/reports/{data}/{model_name}/classification_report_heatmap.png", dpi=300, bbox_inches="tight")
+plt.show()

@@ -14,12 +14,12 @@ def add_gaussian_noise(image_tensor, sigma=0.01):
     noisy_image = image_tensor.float() + noise
     return torch.clamp(noisy_image, 0, 1)
 
-from model.mobilevitxxs import model
+from model.mobileplantvit import model
 model_name = "mobilevitxxs"
 num_class = 10
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 project_root = Path(__file__).resolve().parents[2]
-checkpoint_path = project_root / 'checkpoints' / 'mobilevitxxs' / 'run_20251122-011952' / 'best_checkpoint.pth'
+checkpoint_path = project_root / 'checkpoints' / 'plantvillage' / 'mobileplantvit' / 'run_20260101-103938' / 'best_checkpoint.pth'
 print(f"Đang tải checkpoint từ: {checkpoint_path}")
 if not checkpoint_path.exists():
     raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")

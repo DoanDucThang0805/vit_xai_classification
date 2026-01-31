@@ -5,12 +5,12 @@ import torch.nn as nn
 import torch.optim as optim
 
 from .trainer import Trainer
-from dataset.dataset import train_dataset, val_dataset
+from dataset.plantdoc_dataset import train_dataset, validation_dataset
 from model.squezzenet import model
 
 BATCH_SIZE = 64
 train_ds = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-val_ds = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
+val_ds = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 output_dir = Path.cwd().parents[0]
