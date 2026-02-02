@@ -1,14 +1,19 @@
-import timm
+import torch
+import torch.nn as nn
+from torchvision.models import mobilenet_v3_small
 from torchinfo import summary
 
 
-num_classes=10
-# Load model pretrained
-model = timm.create_model(
-    'mobilenetv3_small_100',
-    pretrained=False,
-    num_classes=num_classes
+NUM_CLASSES = 10
+
+model = mobilenet_v3_small(
+    pretrained=False
 )
+
+# 🔧 Replace classifier head
+in_features = model.classifier[-1].in_features
+model.classifier[-1] = nn.Linear(in_features, NUM_CLASSES)
+
 
 
 # Summary

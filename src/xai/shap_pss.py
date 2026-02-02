@@ -374,6 +374,8 @@ if __name__ == "__main__":
             print(f"[{model_name}] σ={sigma:.3f} → PSS-SHAP={pss_value:.4f}")
 
         all_pss_shap[model_name] = np.array(model_pss)
+        del model
+        torch.cuda.empty_cache()
     np.savez(
         "shap_pss_all_models.npz",
         sigmas=np.array(sigmas),

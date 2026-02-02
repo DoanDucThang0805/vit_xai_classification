@@ -245,6 +245,8 @@ if __name__ == "__main__":
             print(f"[{model_name}] σ={sigma:.3f} → PSS={pss_score:.4f}")
 
         all_pss_scores[model_name] = np.array(model_pss)
+        del model
+        torch.cuda.empty_cache()
     np.savez(
         "gradcam_pss_all_models.npz",
         sigmas=np.array(sigmas),
