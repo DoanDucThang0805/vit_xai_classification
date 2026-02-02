@@ -14,3 +14,11 @@ PYTHONPATH=src python -m trainning.resnet50_train
 PYTHONPATH=src python -m trainning.vgg16_train
 PYTHONPATH=src python -m trainning.vgg16_train
 PYTHONPATH=src python -m trainning.vgg16_train
+
+PYTHONPATH=src python -m trainning.shuffelnetv2_train
+PYTHONPATH=src python -m trainning.shuffelnetv2_train
+PYTHONPATH=src python -m trainning.shuffelnetv2_train
+
+PYTHONPATH=src python -m trainning.squezzenet_train
+PYTHONPATH=src python -m trainning.squezzenet_train
+PYTHONPATH=src python -m trainning.squezzenet_train

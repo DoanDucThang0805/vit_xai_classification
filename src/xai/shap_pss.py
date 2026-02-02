@@ -1,14 +1,16 @@
 import io
+import os
 
-import shap
-from shap import Explanation
-from shap.plots import colors
-from shap import maskers, Explainer
 import numpy as np
-import matplotlib.pyplot as plt
-from PIL import Image
 import torch
 import torch.nn as nn
+from PIL import Image
+from tqdm import tqdm
+from skimage.metrics import structural_similarity as ssim
+
+from shap import Explanation, Explainer, maskers
+from shap.plots import colors
+import matplotlib.pyplot as plt
 
 
 class Shap:
@@ -160,22 +162,6 @@ class Shap:
         else:
             fig.subplots_adjust(hspace=hspace)
             
-        # Vẽ thanh màu
-        # cb = fig.colorbar(
-        #     im, ax=np.ravel(axes).tolist(), label="SHAP value", 
-        #     orientation="horizontal", aspect=fig_size[0] / aspect
-        # )
-        # Vẽ thanh màu
-        # cb = fig.colorbar(
-        #     im, 
-        #     ax=np.ravel(axes).tolist(), 
-        #     label="SHAP value", 
-        #     orientation="vertical",   # <--- Đổi thành vertical
-        #     fraction=0.02,            # <--- Độ rộng của thanh màu (0.02 = 2% chiều rộng hình)
-        #     pad=0.04                  # <--- Khoảng cách giữa hình và thanh màu
-        # )
-        # cb.outline.set_visible(False) # Tắt viền thanh màu
-
         if show:
             plt.show()
         # --- CODE MỚI: LẤY MA TRẬN ẢNH SÁT LỀ (CROP TIGHT) ---
@@ -200,17 +186,16 @@ class Shap:
         
         # Đóng figure và buffer để giải phóng RAM
         buf.close()
-
+        plt.close(fig)
         return image_matrix
 
-    def __call__(self, image_path: str, show: bool=False):
-        image = Image.open(image_path).convert("RGB").resize((224, 224))
-        input_image = np.clip(np.array(image), 0, 255)
+    def __call__(self, image_np: np.ndarray, show: bool=False):
+        input_image = image_np
         masker = maskers.Image("inpaint_telea", input_image.shape)
         explainer = Explainer(self._predictor, masker)
         shap_values = explainer(
             input_image[np.newaxis, ...],
-            max_evals=10000,
+            max_evals=1000,
             batch_size=50
         )
         probs = self._predictor(input_image[np.newaxis, ...])
@@ -224,15 +209,110 @@ class Shap:
         return image_shap
     
 
-# if __name__ == "__main__":
-#     from model.vgg16 import model as vgg16
-#     model = vgg16
-#     checkpoint_path = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/vgg16/run_20251019-171608/best_checkpoint.pth"
-#     image_path = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/data/PlantVillage/Tomato_Septoria_leaf_spot/0a70601b-8511-4a56-9562-c95c46372874___Matt.S_CG 1032.JPG"
-#     checkpoint = torch.load(checkpoint_path, map_location="cuda")
-#     model.load_state_dict(checkpoint['model_state_dict'])
-#     shap_explainer = Shap(model=model)
-#     shap_image = shap_explainer(image_path=image_path, show=False)
-#     print(shap_image.shape)
-#     print(shap_image)
-#     print(shap_image.dtype)
+class PSS_Shap:
+    def __init__(
+        self,
+        model: nn.Module,
+        root_dir: str,
+        sigma: float
+    ):
+        self.model = model
+        self.root_dir = root_dir
+        self.sigma = sigma
+
+    def _get_tomato_image_paths(self, root_dir: str, num_images_per_class: int=5):
+        class_names = sorted(
+            [d for d in os.listdir(root_dir)
+             if os.path.isdir(os.path.join(root_dir, d))
+             and d.startswith("Tomato")]
+        )
+        image_paths = []
+        for class_name in class_names:
+            class_dir = os.path.join(root_dir, class_name)
+            class_image_names = sorted(os.listdir(class_dir))[:num_images_per_class]
+            for img_name in class_image_names:
+                img_path =  os.path.join(class_dir, img_name)
+                image_paths.append(img_path)
+        return image_paths
+    
+    def _load_image_np(self, image_path: str):
+        img = Image.open(image_path).convert("RGB")
+        img = img.resize((224, 224))
+        return np.array(img).astype(np.float32) / 255.0
+
+    def _generate_noisy_images(self, img: np.ndarray, num_noise: int=10, sigma: float=0.02):
+        noisy_images = []
+        for _ in range(num_noise):
+            noise = np.random.normal(0, sigma, img.shape)
+            noisy = img + noise
+            noisy = np.clip(noisy, 0, 1)
+            noisy_images.append(noisy)
+        return noisy_images
+    
+    def _convert_to_uint8(self, img: np.ndarray):
+        img_uint8 = (img * 255).astype(np.uint8)
+        return img_uint8
+
+    def _compute_ssim(self, img1: np.ndarray, img2: np.ndarray):
+        """Compute Structural Similarity Index (SSIM) between two images.
+
+        Args:
+            img1 (np.ndarray): First image.
+            img2 (np.ndarray): Second image.
+
+        Returns:
+            float: SSIM value between the two images.
+        """
+        ssim_score = ssim(
+            img1, img2,
+            data_range=255,
+            channel_axis=-1
+        )
+        return ssim_score
+
+    def __call__(self):
+        shap_explainer = Shap(self.model)
+        image_paths = self._get_tomato_image_paths(self.root_dir, num_images_per_class=5)
+        pss_all = []
+        for image_path in tqdm(image_paths, desc="Calculating PSS SHAP"):
+            image_np = self._load_image_np(image_path)
+            noisy_images = self._generate_noisy_images(
+                image_np,
+                num_noise=10,
+                sigma=self.sigma
+            )
+            saliency_maps = []
+            for noisy_img in noisy_images:
+                noisy_img_uint8 = self._convert_to_uint8(noisy_img)
+                image_explained = shap_explainer(noisy_img_uint8, show=False)
+                saliency_maps.append(image_explained)
+            ssim_values = []
+            K = len(saliency_maps)
+            for i in range(K):
+                for j in range(K):
+                    if i != j:
+                        ssim_score = self._compute_ssim(
+                            saliency_maps[i],
+                            saliency_maps[j]
+                        )
+                        ssim_values.append(ssim_score)
+            pss_image = np.mean(ssim_values)
+            pss_all.append(pss_image)
+        return np.mean(pss_all)
+    
+
+if __name__ == "__main__":
+    from model.vgg16 import model as vgg16
+    checkpoint_path = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/vgg16/run_20251019-171608/best_checkpoint.pth"
+    checkpoint = torch.load(checkpoint_path, map_location="cuda")
+    model = vgg16
+    model.load_state_dict(checkpoint["model_state_dict"])
+    pv_root = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/data/PlantVillage"
+    sigma = 0.01
+    pss_shap = PSS_Shap(
+        model=model,
+        root_dir=pv_root,
+        sigma=sigma
+    )
+    pss_value = pss_shap()
+    print(f"PSS SHAP: {pss_value:.4f}")

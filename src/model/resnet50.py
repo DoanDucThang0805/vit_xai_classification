@@ -2,10 +2,10 @@ import timm
 from torchinfo import summary
 
 
-num_classes = 8
+num_classes = 10
 model = timm.create_model(
     "resnet50",
-    pretrained=True,
+    pretrained=False,
     num_classes=num_classes
 )
 

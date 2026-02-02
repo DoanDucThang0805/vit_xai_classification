@@ -8,8 +8,6 @@ import torch.nn as nn
 from torchvision import transforms
 from PIL import Image
 
-from model.vgg16 import model as vgg16
-
 
 class GradCam:
     def __init__(self):
@@ -66,6 +64,7 @@ class GradCam:
 
 
 if __name__ == "__main__":
+    from model.vgg16 import model as vgg16
     checkpoint_path = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/vgg16/run_20251019-171608/best_checkpoint.pth"
     image_path = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/data/PlantVillage/Tomato_Septoria_leaf_spot/0a70601b-8511-4a56-9562-c95c46372874___Matt.S_CG 1032.JPG"
     checkpoint = torch.load(checkpoint_path, map_location="cuda")
@@ -80,3 +79,5 @@ if __name__ == "__main__":
         image_show=True
     )
     print(gradcam_image)
+    print(gradcam_image.dtype)
+    print(gradcam_image.shape)

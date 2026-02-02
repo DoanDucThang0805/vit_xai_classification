@@ -2,7 +2,7 @@ import timm
 from torchinfo import summary
 
 
-num_classes = 8
+num_classes = 10
 model = timm.create_model(
     "densenet121",
     pretrained=False,

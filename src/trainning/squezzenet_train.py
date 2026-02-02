@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 from .trainer import Trainer
-from dataset.plantdoc_dataset import train_dataset, validation_dataset
+from dataset.dataset import train_dataset, validation_dataset
 from model.squezzenet import model
 
 BATCH_SIZE = 64
@@ -27,7 +27,7 @@ trainer = Trainer(
     model=model,
     criterion=criterion,
     optimizer=optimizer,
-    checkpoints_dir=str(output_dir / "checkpoints" / "plantdoc" / "squzeenetv2")
+    checkpoints_dir=str(output_dir / "checkpoints" / "plantvillage" / "squzeenetv2")
 )
 
 if __name__ == "__main__":

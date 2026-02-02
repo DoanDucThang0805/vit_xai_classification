@@ -1,7 +1,7 @@
 from torchvision.models import shufflenet_v2_x1_0
 from torchinfo import summary
 
-num_classes = 8
+num_classes = 10
 
 model = shufflenet_v2_x1_0(
     weights=None,          # hoặc "IMAGENET1K_V1" nếu muốn pretrained

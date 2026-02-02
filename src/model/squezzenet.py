@@ -2,7 +2,7 @@ import torch
 from torchvision.models import squeezenet1_1
 from torchinfo import summary
 
-num_classes = 8
+num_classes = 10
 
 model = squeezenet1_1(
     weights=None,          # hoặc "IMAGENET1K_V1" nếu muốn pretrained

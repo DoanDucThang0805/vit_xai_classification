@@ -53,21 +53,23 @@ class Lime:
             hide_rest=False
         )
         lime_image_np = mark_boundaries(temp / 255.0, mask)
+        lime_image_np = (lime_image_np * 255).astype(np.uint8)
         if image_show:
             plt.imshow(lime_image_np)
             plt.axis('off')
             plt.show()
         return lime_image_np
 
-if __name__ == "__main__":
-    from model.vgg16 import model as vgg16
-    checkpoint_path = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/vgg16/run_20251019-171608/best_checkpoint.pth"
-    image_path = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/data/PlantVillage/Tomato_Septoria_leaf_spot/0a70601b-8511-4a56-9562-c95c46372874___Matt.S_CG 1032.JPG"
-    checkpoint = torch.load(checkpoint_path, map_location="cuda")
-    model = vgg16
-    model.load_state_dict(checkpoint['model_state_dict'])
-    lime = Lime(model=model)
-    image_path = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/data/PlantVillage/Tomato_Septoria_leaf_spot/0a70601b-8511-4a56-9562-c95c46372874___Matt.S_CG 1032.JPG"
-    lime_image = lime(image_path=image_path, image_show=True)
-    print(lime_image)
-    
+# if __name__ == "__main__":
+#     from model.vgg16 import model as vgg16
+#     checkpoint_path = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/vgg16/run_20251019-171608/best_checkpoint.pth"
+#     image_path = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/data/PlantVillage/Tomato_Septoria_leaf_spot/0a70601b-8511-4a56-9562-c95c46372874___Matt.S_CG 1032.JPG"
+#     checkpoint = torch.load(checkpoint_path, map_location="cuda")
+#     model = vgg16
+#     model.load_state_dict(checkpoint['model_state_dict'])
+#     lime = Lime(model=model)
+#     image_path = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/data/PlantVillage/Tomato_Septoria_leaf_spot/0a70601b-8511-4a56-9562-c95c46372874___Matt.S_CG 1032.JPG"
+#     lime_image = lime(image_path=image_path, image_show=True)
+#     print(lime_image)
+#     print(lime_image.dtype)
+#     print(lime_image.shape)
