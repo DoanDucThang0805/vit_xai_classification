@@ -302,17 +302,80 @@ class PSS_Shap:
     
 
 if __name__ == "__main__":
+    import torch
+    import numpy as np
+
     from model.vgg16 import model as vgg16
-    checkpoint_path = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/vgg16/run_20251019-171608/best_checkpoint.pth"
-    checkpoint = torch.load(checkpoint_path, map_location="cuda")
-    model = vgg16
-    model.load_state_dict(checkpoint["model_state_dict"])
+    from model.resnet50 import model as resnet50
+    from model.mobilenetv3_small import model as mobilenetv3_small
+    from model.mobileplantvit import model as mobileplantvit
+    from model.shufflenet import model as shufflenetv2
+    from model.squezzenet import model as squeezenet
+    from model.densnet121 import model as densenet121
+
+    models = {
+        "VGG16": {
+            "model": vgg16,
+            "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/vgg16/run_20251019-171608/best_checkpoint.pth",
+        },
+        "ResNet50": {
+            "model": resnet50,
+            "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/resnet50/run_20251019-084733/best_checkpoint.pth",
+        },
+        "MobileNetV3_Small": {
+            "model": mobilenetv3_small,
+            "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/mobilenetv3_small/run_20251021-151012/best_checkpoint.pth",
+        },
+        "MobilePlantViT": {
+            "model": mobileplantvit,
+            "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/mobileplantvit/run_20260101-103938/best_checkpoint.pth",
+        },
+        "ShuffleNetV2": {
+            "model": shufflenetv2,
+            "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/shufflenetv2/run_20251022-132921/best_checkpoint.pth",
+        },
+        "SqueezeNet": {
+            "model": squeezenet,
+            "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/squeezenet/run_20251021-171131/best_checkpoint.pth",
+        },
+        "DenseNet121": {
+            "model": densenet121,
+            "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/densenet121/run_20251018-193243/best_checkpoint.pth",
+        },
+    }
+    sigmas = [0.001, 0.005, 0.01, 0.02, 0.03, 0.04,
+          0.05, 0.06, 0.07, 0.08, 0.09, 0.1]
+
     pv_root = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/data/PlantVillage"
-    sigma = 0.01
-    pss_shap = PSS_Shap(
-        model=model,
-        root_dir=pv_root,
-        sigma=sigma
+    device = "cuda"
+    all_pss_shap = {}
+
+    for model_name, cfg in models.items():
+        print(f"\n=== Evaluating PSS-SHAP for {model_name} ===")
+
+        model = cfg["model"]
+        ckpt = torch.load(cfg["ckpt"], map_location=device)
+        model.load_state_dict(ckpt["model_state_dict"])
+        model.to(device)
+        model.eval()
+
+        model_pss = []
+
+        for sigma in sigmas:
+            pss_shap = PSS_Shap(
+                model=model,
+                root_dir=pv_root,
+                sigma=sigma
+            )
+
+            pss_value = pss_shap()
+            model_pss.append(pss_value)
+
+            print(f"[{model_name}] σ={sigma:.3f} → PSS-SHAP={pss_value:.4f}")
+
+        all_pss_shap[model_name] = np.array(model_pss)
+    np.savez(
+        "shap_pss_all_models.npz",
+        sigmas=np.array(sigmas),
+        **all_pss_shap
     )
-    pss_value = pss_shap()
-    print(f"PSS SHAP: {pss_value:.4f}")
