@@ -7,13 +7,13 @@ conda activate /media/icnlab/Data/Thang/plan_dieases/env
 cd src
 
 # Chạy script train
-PYTHONPATH=src python -m trainning.resnet50_train
-PYTHONPATH=src python -m trainning.resnet50_train
+# PYTHONPATH=src python -m trainning.resnet50_train
+# PYTHONPATH=src python -m trainning.resnet50_train
 PYTHONPATH=src python -m trainning.resnet50_train
 
 PYTHONPATH=src python -m trainning.vgg16_train
 PYTHONPATH=src python -m trainning.vgg16_train
-PYTHONPATH=src python -m trainning.vgg16_train
+# PYTHONPATH=src python -m trainning.vgg16_train
 
 PYTHONPATH=src python -m trainning.shuffelnetv2_train
 PYTHONPATH=src python -m trainning.shuffelnetv2_train

@@ -22,7 +22,8 @@ onnxruntime
 
 # Visualization
 matplotlib
-
+seaborn
 # Utilities
 PyYAML
 pydantic
+albumentations
