@@ -188,11 +188,11 @@ if __name__ == "__main__":
         "MobileNetV3_Small": {
             "model": mobilenetv3_small,
             "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/mobilenetv3_small/run_20251021-151012/best_checkpoint.pth",
-            "target_layer": [mobilenetv3_small.blocks[-1]]
+            "target_layer": [mobilenetv3_small.features[-1]]
         },
         "Mobileplantvit": {
             "model": mobileplantvit,
-            "ckpt": "./media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/mobileplantvit/run_20260101-103938/best_checkpoint.pth",
+            "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/mobileplantvit/run_20260101-103938/best_checkpoint.pth",
             "target_layer": [mobileplantvit.block4[-1]]
         },
         "ShuffleNetV2": {
