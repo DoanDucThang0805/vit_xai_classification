@@ -23,14 +23,14 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
-from dataset.plantdoc_dataset import test_dataset
-from model.mobileplantvitv2 import model
+from dataset.dataset import test_dataset
+from model.squezzenet import model
 
 
-model_name = 'mobileplantvit'
-run_time = 'run_20251230-151728'
-data = 'plantdoc'
-num_class = 8
+model_name = 'squezzenetv2'
+run_time = 'run_20251021-171131'
+data = 'plantvillage'
+num_class = 10
 test_ds = DataLoader(test_dataset, batch_size=32, shuffle=True)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

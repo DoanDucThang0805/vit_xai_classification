@@ -94,7 +94,7 @@ class PSS_Lime:
         img = img.resize((224, 224))
         return np.array(img).astype(np.float32) / 255.0
 
-    def _generate_noisy_images(self, img: np.ndarray, num_noise: int=10, sigma: float=0.02):
+    def _generate_noisy_images(self, img: np.ndarray, num_noise: int=5, sigma: float=0.02):
         noisy_images = []
         for _ in range(num_noise):
             noise = np.random.normal(0, sigma, img.shape)
@@ -130,7 +130,7 @@ class PSS_Lime:
         pss_all = []
         for image_path in tqdm(image_paths, desc="Processing Images"):
             image_np = self._load_image_np(image_path)
-            noisy_images = self._generate_noisy_images(image_np, num_noise=10, sigma=self.sigma)
+            noisy_images = self._generate_noisy_images(image_np, num_noise=3, sigma=self.sigma)
             saliency_maps = []
             for noisy_img in noisy_images:
                 noisy_img_uint8 = self._convert_to_uint8(noisy_img)
@@ -175,33 +175,32 @@ if __name__ == "__main__":
             "model": vgg16,
             "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/vgg16/run_20251019-171608/best_checkpoint.pth",
         },
-        "ResNet50": {
-            "model": resnet50,
-            "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/resnet50/run_20251019-084733/best_checkpoint.pth",
-        },
-        "MobileNetV3_Small": {
-            "model": mobilenetv3_small,
-            "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/mobilenetv3_small/run_20251021-151012/best_checkpoint.pth",
-        },
-        "MobilePlantViT": {
-            "model": mobileplantvit,
-            "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/mobileplantvit/run_20260101-103938/best_checkpoint.pth",
-        },
-        "ShuffleNetV2": {
-            "model": shufflenetv2,
-            "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/shufflenetv2/run_20251022-132921/best_checkpoint.pth",
-        },
-        "SqueezeNet": {
-            "model": squeezenet,
-            "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/squeezenet/run_20251021-171131/best_checkpoint.pth",
-        },
-        "DenseNet121": {
-            "model": densenet121,
-            "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/densenet121/run_20251018-193243/best_checkpoint.pth",
-        },
+        # "ResNet50": {
+        #     "model": resnet50,
+        #     "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/resnet50/run_20251019-084733/best_checkpoint.pth",
+        # },
+        # "MobileNetV3_Small": {
+        #     "model": mobilenetv3_small,
+        #     "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/mobilenetv3_small/run_20251021-151012/best_checkpoint.pth",
+        # },
+        # "MobilePlantViT": {
+        #     "model": mobileplantvit,
+        #     "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/mobileplantvit/run_20260101-103938/best_checkpoint.pth",
+        # },
+        # "ShuffleNetV2": {
+        #     "model": shufflenetv2,
+        #     "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/shufflenetv2/run_20251022-132921/best_checkpoint.pth",
+        # },
+        # "SqueezeNet": {
+        #     "model": squeezenet,
+        #     "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/squezzenetv2/run_20251021-171131/best_checkpoint.pth",
+        # },
+        # "DenseNet121": {
+        #     "model": densenet121,
+        #     "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/densenet121/run_20251018-193243/best_checkpoint.pth",
+        # },
     }
-    sigmas = [0.001, 0.005, 0.01, 0.02, 0.03, 0.04,
-          0.05, 0.06, 0.07, 0.08, 0.09, 0.1]
+    sigmas = [0.01, 0.03, 0.05, 0.07, 0.09, 0.1]
 
     pv_root = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/data/PlantVillage"
     device = "cuda"
@@ -235,7 +234,7 @@ if __name__ == "__main__":
         del model
         torch.cuda.empty_cache()
     np.savez(
-        "lime_pss_all_models.npz",
+        "lime_pss_all_models_vgg16.npz",
         sigmas=np.array(sigmas),
         **all_pss_lime
     )
