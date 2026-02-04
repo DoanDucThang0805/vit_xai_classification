@@ -44,14 +44,14 @@ class Lime:
             self._batch_predict,
             top_labels=5,
             hide_color=0,
-            num_samples=1000
+            num_samples=100
         )
         label_idx = explanation.top_labels[0]
         print("Predicted class index:", label_idx)
         temp, mask = explanation.get_image_and_mask(
             label_idx,
             positive_only=False,
-            num_features=10,
+            num_features=3,
             hide_rest=False
         )
         lime_image_np = mark_boundaries(temp / 255.0, mask)
@@ -130,7 +130,7 @@ class PSS_Lime:
         pss_all = []
         for image_path in tqdm(image_paths, desc="Processing Images"):
             image_np = self._load_image_np(image_path)
-            noisy_images = self._generate_noisy_images(image_np, num_noise=3, sigma=self.sigma)
+            noisy_images = self._generate_noisy_images(image_np, num_noise=5, sigma=self.sigma)
             saliency_maps = []
             for noisy_img in noisy_images:
                 noisy_img_uint8 = self._convert_to_uint8(noisy_img)
