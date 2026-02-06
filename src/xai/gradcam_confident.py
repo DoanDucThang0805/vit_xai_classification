@@ -96,16 +96,19 @@ def calculate_confidence_drop(gradcam_instance, model, target_layers, image_path
         masked_pred_class = new_class_idx.item()
 
     # 5. Tính độ sụt giảm (Drop %) dựa trên class gốc
-    drop_score = (orig_conf - masked_conf_of_orig_class) / orig_conf
+    drop_score = (orig_conf - masked_conf_of_orig_class)
     drop_score = max(0, drop_score)
     
     # Trả về thêm: orig_pred_class (lớp cũ) và masked_pred_class (lớp mới)
     return drop_score, orig_conf, masked_conf_of_orig_class, masked_input, orig_pred_class, masked_pred_class
 
 
-def visualize_drop(gradcam_instance, image_path, masked_tensor, 
+def visualize_drop(gradcam_instance, image_path, gradimg_path, masked_tensor, 
                    orig_conf, masked_conf, drop_score, 
                    orig_class_idx, masked_class_idx, class_names=None):
+    
+    grad_img = Image.open(gradimg_path).convert("RGB")
+    grad_img_np = np.array(grad_img)
     
     # Lấy tên class nếu có danh sách, nếu không thì hiện số index
     orig_label = class_names[orig_class_idx] if class_names else f"Class {orig_class_idx}"
@@ -118,34 +121,40 @@ def visualize_drop(gradcam_instance, image_path, masked_tensor,
     masked_np = masked_tensor.squeeze().cpu().permute(1, 2, 0).numpy()
     masked_np = (masked_np - masked_np.min()) / (masked_np.max() - masked_np.min())
 
-    fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+    fig, axs = plt.subplots(1, 3, figsize=(12, 6))
     
     # Subplot 1: Ảnh gốc
     axs[0].imshow(original_pil)
-    axs[0].set_title(f"Original: {orig_label}\nConf: {orig_conf:.2%}", color='green', fontweight='bold')
+    # axs[0].set_title(f"Original: {orig_label}\nConf: {orig_conf:.2%}", color='green', fontweight='bold')
     axs[0].axis('off')
 
+    axs[1].imshow(grad_img_np)
+    axs[1].axis("off")
     # Subplot 2: Ảnh bị che
     # Nếu class thay đổi thì tô màu đỏ đậm để cảnh báo
     title_color = 'red' if orig_class_idx != masked_class_idx else 'darkorange'
     
-    axs[1].imshow(masked_np)
-    axs[1].set_title(f"Masked Prediction: {masked_label}\n(Orig Class Conf: {masked_conf:.2%})\nDrop: {drop_score:.2%}", 
-                     color=title_color, fontweight='bold')
-    axs[1].axis('off')
+    axs[2].imshow(masked_np)
+    # axs[3].set_title(f"Masked Prediction: {masked_label}\n(Orig Class Conf: {masked_conf:.2%})\nDrop: {drop_score:.2%}", 
+    #                  color=title_color, fontweight='bold')
+    axs[2].axis('off')
     
     plt.tight_layout()
+    plt.savefig("/media/icnlab/Data/Thang/plan_dieases/vit_xai/src/xai/masked_img.png",
+                bbox_inches='tight',
+                pad_inches=0)
     plt.show()
 
 
 if __name__ == "__main__":
-    from model.vgg16 import model as vgg16
-    checkpoint_path = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/vgg16/run_20251019-171608/best_checkpoint.pth"
+    from model.mobileplantvit import model as vgg16
+    checkpoint_path = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/mobileplantvit/run_20260101-103938/best_checkpoint.pth"
     image_path = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/data/PlantVillage/Tomato_Septoria_leaf_spot/0a70601b-8511-4a56-9562-c95c46372874___Matt.S_CG 1032.JPG"
+    gradcam_img_path = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/images/xai_images/mobileplantvit_gradcam.png"
     checkpoint = torch.load(checkpoint_path, map_location="cuda")
     model = vgg16
     model.load_state_dict(checkpoint['model_state_dict'])
-    target_layers = [model.features[26]]
+    target_layers = [model.patch_embedding.cbam]
     # 1. Định nghĩa danh sách tên bệnh chuẩn (Dựa trên dictionary bạn cung cấp)
     # Index từ 0 đến 9 khớp hoàn toàn với mô hình của bạn
     CLASS_NAMES = [
@@ -179,16 +188,17 @@ if __name__ == "__main__":
 
     # 5. In kết quả định lượng (Số liệu này dùng để điền vào bảng/viết trong bài)
     print("=" * 60)
-    print(f"Original Prediction:  {CLASS_NAMES[orig_cls]:<30} (Conf: {orig_conf:.2%})")
-    print(f"Masked Prediction:    {CLASS_NAMES[masked_cls]:<30} (Conf: {masked_conf:.2%})") 
+    print(f"Original Prediction:  {CLASS_NAMES[orig_cls]:<30} (Conf: {orig_conf:.4f})")
+    print(f"Masked Prediction:    {CLASS_NAMES[masked_cls]:<30} (Conf: {masked_conf:.4f})") 
     print("-" * 60)
-    print(f"CONFIDENCE DROP:      {drop:.2%}")
+    print(f"CONFIDENCE DROP:      {drop:.4f}")
     print("=" * 60)
 
     # 6. Vẽ hình minh họa (Figure) để đưa vào bài báo
     visualize_drop(
         grad_cam, 
-        image_path, 
+        image_path,
+        gradcam_img_path,
         masked_tensor, 
         orig_conf, 
         masked_conf, 

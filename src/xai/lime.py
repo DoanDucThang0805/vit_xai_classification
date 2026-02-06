@@ -42,7 +42,7 @@ class Lime:
             self.batch_predict,
             top_labels=5,
             hide_color=0,
-            num_samples=1000
+            num_samples=100
         )
         label_idx = explanation.top_labels[0]
         print("Predicted class index:", label_idx)

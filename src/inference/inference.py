@@ -18,17 +18,17 @@ from pathlib import Path
 
 import torch
 from torch.utils.data import DataLoader
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, f1_score
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
 from dataset.dataset import test_dataset
-from model.squezzenet import model
+from model.mobileplantvit import model
 
 
-model_name = 'squezzenetv2'
-run_time = 'run_20251021-171131'
+model_name = 'mobileplantvit'
+run_time = 'run_20260101-103938'
 data = 'plantvillage'
 num_class = 10
 test_ds = DataLoader(test_dataset, batch_size=32, shuffle=True)
@@ -75,7 +75,8 @@ with torch.inference_mode(True):
 target_names = [test_dataset.idx_to_class[i] for i in range(len(test_dataset.idx_to_class))]
 print(target_names)
 print(classification_report(all_labels, all_preds, target_names=target_names))
-
+print("Accuracy:", f"{accuracy_score(all_labels, all_preds):.4f}")
+print("Macro F1-score:", f"{f1_score(all_labels, all_preds, average='macro'):.4f}")
 
 # Create output directory for reports
 os.makedirs(

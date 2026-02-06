@@ -171,10 +171,10 @@ if __name__ == "__main__":
     from model.densnet121 import model as densenet121
 
     models = {
-        "VGG16": {
-            "model": vgg16,
-            "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/vgg16/run_20251019-171608/best_checkpoint.pth",
-        },
+        # "VGG16": {
+        #     "model": vgg16,
+        #     "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/vgg16/run_20251019-171608/best_checkpoint.pth",
+        # },
         # "ResNet50": {
         #     "model": resnet50,
         #     "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/resnet50/run_20251019-084733/best_checkpoint.pth",
@@ -195,10 +195,10 @@ if __name__ == "__main__":
         #     "model": squeezenet,
         #     "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/squezzenetv2/run_20251021-171131/best_checkpoint.pth",
         # },
-        # "DenseNet121": {
-        #     "model": densenet121,
-        #     "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/densenet121/run_20251018-193243/best_checkpoint.pth",
-        # },
+        "DenseNet121": {
+            "model": densenet121,
+            "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/densnet121/run_20251018-193243/best_checkpoint.pth",
+        },
     }
     sigmas = [0.01, 0.03, 0.05, 0.07, 0.09, 0.1]
 
@@ -234,7 +234,7 @@ if __name__ == "__main__":
         del model
         torch.cuda.empty_cache()
     np.savez(
-        "lime_pss_all_models_vgg16.npz",
+        "lime_pss_all_models_densenet121.npz",
         sigmas=np.array(sigmas),
         **all_pss_lime
     )

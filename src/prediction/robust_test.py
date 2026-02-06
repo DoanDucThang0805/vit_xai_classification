@@ -39,11 +39,11 @@ models = {
     },
     "SqueezeNet": {
         "model": squeezenet,
-        "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/squeezenet/run_20251021-171131/best_checkpoint.pth",
+        "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/squezzenetv2/run_20251021-171131/best_checkpoint.pth",
     },
     "DenseNet121": {
         "model": densenet121,
-        "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/densenet121/run_20251018-193243/best_checkpoint.pth",
+        "ckpt": "/media/icnlab/Data/Thang/plan_dieases/vit_xai/checkpoints/plantvillage/densnet121/run_20251018-193243/best_checkpoint.pth",
     },
 }
 

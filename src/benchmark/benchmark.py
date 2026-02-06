@@ -1,7 +1,7 @@
 """
 Plant Disease Classification - ONNX Model Benchmark Script
 
-Script này dùng để benchmark hiệu suất của các mô hình ONNX trên Raspberry Pi 4B.
+Script này dùng để benchmark hiệu suất của các mô hình ONNX.
 Nó đo lường latency, FPS, mức sử dụng RAM và CPU của từng mô hình với số threads khác nhau.
 Kết quả được lưu vào CSV file để dễ phân tích.
 """
@@ -16,7 +16,7 @@ import gc  # Buộc garbage collection
 
 # ==================== Cấu hình ====================
 # Thư mục chứa các mô hình ONNX
-checkpoint_dir = "/home/pi/thang/plant_dieasse/checkpoints/plant_village"
+checkpoint_dir = "/media/icnlab/Data/Thang/plan_dieases/vit_xai/onnx_model/plant_village"
 
 # Dictionary chứa tên mô hình và đường dẫn tương ứng
 # Các mô hình sẽ được test lần lượt để so sánh hiệu suất
@@ -130,34 +130,31 @@ def benchmark(model_name, model_path, threads):
 
     # ===== BENCHMARK PHASE =====
     for _ in range(N_RUNS):
-        # Buộc garbage collection để xóa bộ nhớ không cần thiết
         gc.collect()
 
-        # Đo mức sử dụng CPU trước inference
-        cpu_before = psutil.cpu_percent(interval=None)
+        # Reset bộ đo CPU toàn hệ thống
+        psutil.cpu_percent(interval=None)
 
-        # Đo thời gian bắt đầu (high-resolution timer)
+        # Đo thời gian bắt đầu
         start = time.perf_counter()
-        
-        # Chạy model với dummy input
+
+        # Chạy model
         session.run(None, {input_name: dummy})
-        
+
         # Đo thời gian kết thúc
         end = time.perf_counter()
 
-        # Đo mức sử dụng CPU sau inference
-        cpu_after = psutil.cpu_percent(interval=None)
+        # Lấy CPU toàn hệ thống trong đúng khoảng inference
+        cpu = psutil.cpu_percent(interval=None)
 
-        # Tính latency (thời gian chạy) theo millisecond
+        # Lưu latency
         latencies.append((end - start) * 1000)
-        
-        # Lưu trung bình CPU trước và sau
-        cpu_list.append((cpu_before + cpu_after) / 2)
 
-        # Lấy mức RAM hiện tại (convert từ bytes sang MB)
+        # Lưu CPU usage
+        cpu_list.append(cpu)
+
+        # Đo RAM
         ram = process.memory_info().rss / 1024 / 1024
-        
-        # Cập nhật peak RAM (giữ lại giá trị cao nhất)
         peak_ram = max(peak_ram, ram)
 
     # ===== TÍNH TOÁN METRICS =====
